@@ -70,10 +70,10 @@ And with me keep of flesh war, therefore I had princely ye,
 
 The model picks up dialogue formatting, character names, and Shakespeare-like phrasing. Grammar and meaning are inconsistent, and it does not maintain a coherent story. These results are from one run, not a reproducible benchmark.
 
-## Next experiment
-
-Train on addition examples such as `12+7=19`, then measure exact-answer accuracy on unseen equations. The goal is to investigate whether it generalizes beyond the examples it sees during training, including to longer numbers.
-
 ## Acknowledgments
 
 Architecture and learning path follow [Andrej Karpathy’s nn-zero-to-hero lectures](https://github.com/karpathy/nn-zero-to-hero). The training corpus is Tiny Shakespeare, also available in [Karpathy’s character-RNN dataset collection](https://github.com/karpathy/char-rnn/tree/master/data/tinyshakespeare).
+
+## Next
+
+I will work on teaching the neural network addition.

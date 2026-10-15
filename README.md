@@ -2,7 +2,7 @@
 
 A small character-level Transformer trained to generate Shakespeare-like dialogue. Built in PyTorch while following [Andrej Karpathy’s “Let’s build GPT: from scratch, in code, spelled out”](https://www.youtube.com/watch?v=kCc8FmEb1nY).
 
-This is a learning project: the code includes my notes as I worked through embeddings, attention, residual connections, layer normalization, and dropout.
+I wrote the model code by hand while following the tutorial. This is a learning project: the code includes my notes as I worked through embeddings, attention, residual connections, layer normalization, and dropout.
 
 ## Files
 

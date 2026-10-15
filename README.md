@@ -57,8 +57,7 @@ After training, it generates 5,000 new characters, prints the text, and writes i
 
 ## Results
 
-A completed Kaggle GPU run reported final training loss **1.0491** and validation loss **1.4912** (character-level cross-entropy). The final print statement currently labels this as `step 10000`, but the training loop uses `max_iters`, which is set to **5,000**.
-
+A completed Kaggle GPU run reported final training loss **1.0491** and validation loss **1.4912** (character-level cross-entropy).
 An excerpt from `more.txt`:
 
 ```text

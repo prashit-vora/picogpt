@@ -1,0 +1,4 @@
+kaggle-job/
+kaggle-results/
+__pycache__/
+*.pt

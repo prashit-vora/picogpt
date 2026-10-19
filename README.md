@@ -22,7 +22,7 @@ The next stage is a handwritten PyTorch forward pass for **GPT-2 small (124M)**,
 
 The packaged CPU comparison against Hugging Face GPT-2 on `The capital of France is` had a **maximum logit difference of 4.58e-5** and identical greedy-generated token IDs (cached custom model versus reference). Cache checks on the pretrained model had a maximum difference around **6.87e-5**, with identical cached/uncached greedy continuations. These are checks on selected inputs, not an exhaustive guarantee or a quality benchmark.
 
-`check_kv_cache.py` covers prompt prefill, single-token decoding, multi-token chunks, batches, fresh-prompt resets, and context-window rollover (the boundary cases use a smaller instance of the same implementation). `prompt.py` compares logits with Hugging Face and displays cached custom-model output alongside reference greedy output.
+`prompt.py` compares logits with Hugging Face and displays cached custom-model output alongside reference greedy output.
 
 ### Run GPT-2
 
@@ -31,7 +31,6 @@ From the repository root, in your Python environment:
 ```bash
 python3 -m pip install -r gpt2/requirements.txt
 python3 gpt2/download_model.py
-python3 gpt2/check_kv_cache.py
 python3 gpt2/prompt.py
 ```
 
@@ -133,7 +132,6 @@ more.txt                Generated Shakespeare-like text
 gpt2/
   gpt2.py               Custom GPT-2 forward pass, weight loading, KV caching
   prompt.py             Interactive comparison against Hugging Face GPT-2
-  check_kv_cache.py      Cached/uncached correctness checks
   download_model.py     Download pinned pretrained weights and tokenizer
   requirements.txt      Inference dependencies
 addition/

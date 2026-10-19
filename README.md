@@ -1,6 +1,6 @@
 # picogpt
 
-**From Shakespeare-like dialogue to learning arithmetic: a character-level Transformer built in PyTorch.**
+**From training a character-level Transformer to running pretrained GPT-2 with a custom forward pass and KV caching.**
 
 I wrote the model implementation by hand to understand attention, residual connections, normalization, and training. Then I turned it into an experiment: can next-token prediction learn addition rather than just memorize equations?
 
@@ -8,7 +8,38 @@ The latest recorded addition run answered **9,999 of 10,000 held-out equations c
 
 [Addition implementation](addition/main.py) · [Latest training log](addition/runs/20261017-174421-reversed-10k/training.log) · [Exact submitted code](addition/runs/20261017-174421-reversed-10k/submitted_main.py) · [Shakespeare sample](more.txt)
 
-## The experiment
+## GPT-2 inference: from weights to cached decoding
+
+The next stage is a handwritten PyTorch forward pass for **GPT-2 small (124M)**, loading the original pretrained weights rather than retraining the model. The earlier character-level models remain below; GPT-2 uses its original byte-level BPE tokenizer.
+
+- **12 blocks, 12 attention heads, width 768, context 1,024**, tanh-approximate GELU, and tied token-embedding/output weights.
+- Explicit checkpoint mapping: transpose GPT-2 projection weights and split combined QKV parameters across separate attention heads.
+- **KV caching per head and layer**: prefill the prompt, then process only the newest token, with offset position embeddings and causal masks.
+- Cache reset between prompts and rebuilding when the 1,024-token window slides; ordinary uncached forward remains available.
+- Only the last position is projected to vocabulary scores during generation.
+
+### Correctness checks
+
+The packaged CPU comparison against Hugging Face GPT-2 on `The capital of France is` had a **maximum logit difference of 4.58e-5** and identical greedy-generated token IDs (cached custom model versus reference). Cache checks on the pretrained model had a maximum difference around **6.87e-5**, with identical cached/uncached greedy continuations. These are checks on selected inputs, not an exhaustive guarantee or a quality benchmark.
+
+`check_kv_cache.py` covers prompt prefill, single-token decoding, multi-token chunks, batches, fresh-prompt resets, and context-window rollover (the boundary cases use a smaller instance of the same implementation). `prompt.py` compares logits with Hugging Face and displays cached custom-model output alongside reference greedy output.
+
+### Run GPT-2
+
+From the repository root, in your Python environment:
+
+```bash
+python3 -m pip install -r gpt2/requirements.txt
+python3 gpt2/download_model.py
+python3 gpt2/check_kv_cache.py
+python3 gpt2/prompt.py
+```
+
+The checkpoint is downloaded at a pinned revision into ignored `gpt2/model/`. To reuse an existing download, set `GPT2_MODEL_DIR` to that directory. No pretrained weights are committed. Loading the custom model happens when `gpt2.py` is imported; the prompt comparison also loads a reference model and therefore needs memory for both.
+
+This is a learning implementation with separate Python attention-head calls and growing tensor caches, not an optimized serving engine. **Speed and memory benchmarks are still pending.** GPT-2 is a base completion model, not an instruction-tuned assistant; its text can be repetitive, inaccurate, or offensive. Matching the reference verifies computation, not factual quality.
+
+## The addition experiment
 
 A small decoder-only Transformer learns character sequences such as `237+486=327\n`. The answer is reversed during training, so generation starts with the units digit. Predictions are reversed back for human-readable output.
 
@@ -99,6 +130,12 @@ It trains on `input.txt` and writes generated text to `more.txt`. The original r
 main.py                 Shakespeare model and training
 input.txt               Tiny Shakespeare corpus
 more.txt                Generated Shakespeare-like text
+gpt2/
+  gpt2.py               Custom GPT-2 forward pass, weight loading, KV caching
+  prompt.py             Interactive comparison against Hugging Face GPT-2
+  check_kv_cache.py      Cached/uncached correctness checks
+  download_model.py     Download pinned pretrained weights and tokenizer
+  requirements.txt      Inference dependencies
 addition/
   main.py               Addition training and evaluation
   kaggle_run.py         Remote job submission and output download
@@ -109,8 +146,10 @@ addition/
 
 The starting architecture and learning path follow [Andrej Karpathy's GPT lecture](https://www.youtube.com/watch?v=kCc8FmEb1nY). The corpus is [Tiny Shakespeare](https://github.com/karpathy/char-rnn/tree/master/data/tinyshakespeare).
 
+GPT-2 weights and tokenizer come from [openai-community/gpt2](https://huggingface.co/openai-community/gpt2). The reference is [Hugging Face Transformers](https://github.com/huggingface/transformers); the original model is [OpenAI GPT-2](https://github.com/openai/gpt-2). Pretrained assets retain their upstream terms.
+
 Relevant arithmetic reading: [Teaching Arithmetic to Small Transformers](https://arxiv.org/abs/2307.03381) and [Understanding Addition in Transformers](https://arxiv.org/abs/2310.13121). These informed the investigation; this repository is a learning project, not a reproduction of their full experimental setups.
 
 ## Next
 
-Run a controlled comparison of answer order, investigate the zero-answer termination failure, then return to the ML systems roadmap: pretrained-model forward-pass verification, KV caching, and inference benchmarks.
+Benchmark cached versus uncached decoding: time to first token, tokens per second, and memory usage. Then batch attention heads into larger tensor operations and measure the effect. Longer-term: LoRA/QLoRA and inference profiling. For addition, controlled answer-order experiments and the zero-answer termination failure remain open.

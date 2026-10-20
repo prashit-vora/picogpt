@@ -22,7 +22,18 @@ The next stage is a handwritten PyTorch forward pass for **GPT-2 small (124M)**,
 
 The packaged CPU comparison against Hugging Face GPT-2 on `The capital of France is` had a **maximum logit difference of 4.58e-5** and identical greedy-generated token IDs (cached custom model versus reference). Cache checks on the pretrained model had a maximum difference around **6.87e-5**, with identical cached/uncached greedy continuations. These are checks on selected inputs, not an exhaustive guarantee or a quality benchmark.
 
-`prompt.py` compares logits with Hugging Face and displays cached custom-model output alongside reference greedy output.
+`compare_reference.py` compares logits with Hugging Face and displays cached custom-model output alongside reference greedy output. `prompt.py` runs the cached-versus-uncached timing experiment using only the custom model.
+
+### Initial CPU benchmark: 2.76× faster with KV caching
+
+Five trials per mode, **100 generated tokens per trial**, batch size 1, greedy decoding. Each paired trial uses the same randomly generated two-word prompt (two words are not necessarily two BPE tokens). Each mode gets an untimed five-token warm-up. The model is loaded once; timing includes prompt processing and generation, but excludes loading, tokenization, decoding to text, and printing.
+
+| Mode | Total time, 5 trials | Mean per 100 tokens | Generated tokens/second |
+| --- | ---: | ---: | ---: |
+| Uncached | 81.6767 s | 16.3353 s | 6.12 |
+| KV cache | 29.5684 s | 5.9137 s | 16.91 |
+
+**2.76× speedup, approximately 64% less time.** These are user-recorded CPU results from the October 20, 2026 run, not new measurements from packaging the script. Throughput is total generated tokens divided by total elapsed time. Per-trial timings, exact random prompts, and hardware/thread settings were not retained, so this is an initial measurement rather than a fully reproducible performance claim. Uncached runs first in each pair; subsequent experiments should vary order and report variability. Longer-context scaling and memory measurements remain to be done.
 
 ### Run GPT-2
 
@@ -31,12 +42,14 @@ From the repository root, in your Python environment:
 ```bash
 python3 -m pip install -r gpt2/requirements.txt
 python3 gpt2/download_model.py
-python3 gpt2/prompt.py
+python3 gpt2/prompt.py  # Five paired CPU/GPU timing trials
+# Optional correctness comparison (loads a second model):
+python3 gpt2/compare_reference.py
 ```
 
-The checkpoint is downloaded at a pinned revision into ignored `gpt2/model/`. To reuse an existing download, set `GPT2_MODEL_DIR` to that directory. No pretrained weights are committed. Loading the custom model happens when `gpt2.py` is imported; the prompt comparison also loads a reference model and therefore needs memory for both.
+The checkpoint is downloaded at a pinned revision into ignored `gpt2/model/`. To reuse an existing download, set `GPT2_MODEL_DIR` to that directory. No pretrained weights are committed. Loading the custom model happens when `gpt2.py` is imported; the optional reference comparison also loads a reference model and therefore needs memory for both.
 
-This is a learning implementation with separate Python attention-head calls and growing tensor caches, not an optimized serving engine. **Speed and memory benchmarks are still pending.** GPT-2 is a base completion model, not an instruction-tuned assistant; its text can be repetitive, inaccurate, or offensive. Matching the reference verifies computation, not factual quality.
+This is a learning implementation with separate Python attention-head calls and growing tensor caches, not an optimized serving engine. **The initial CPU speed benchmark is above; memory and longer-context benchmarks are pending.** GPT-2 is a base completion model, not an instruction-tuned assistant; its text can be repetitive, inaccurate, or offensive. Matching the reference verifies computation, not factual quality.
 
 ## The addition experiment
 
@@ -131,7 +144,8 @@ input.txt               Tiny Shakespeare corpus
 more.txt                Generated Shakespeare-like text
 gpt2/
   gpt2.py               Custom GPT-2 forward pass, weight loading, KV caching
-  prompt.py             Interactive comparison against Hugging Face GPT-2
+  prompt.py             Cached versus uncached generation benchmark
+  compare_reference.py  Interactive comparison against Hugging Face GPT-2
   download_model.py     Download pinned pretrained weights and tokenizer
   requirements.txt      Inference dependencies
 addition/
@@ -150,4 +164,4 @@ Relevant arithmetic reading: [Teaching Arithmetic to Small Transformers](https:/
 
 ## Next
 
-Benchmark cached versus uncached decoding: time to first token, tokens per second, and memory usage. Then batch attention heads into larger tensor operations and measure the effect. Longer-term: LoRA/QLoRA and inference profiling. For addition, controlled answer-order experiments and the zero-answer termination failure remain open.
+Extend the initial cache benchmark across 16-, 64-, 256-, and 512-token prompts; measure time to first token, tokens per second, and memory usage. Then batch attention heads into larger tensor operations and measure the effect. Longer-term: LoRA/QLoRA and inference profiling. For addition, controlled answer-order experiments and the zero-answer termination failure remain open.

@@ -35,6 +35,27 @@ Five trials per mode, **100 generated tokens per trial**, batch size 1, greedy d
 
 **2.76× speedup, approximately 64% less time.** These are user-recorded CPU results from the October 20, 2026 run, not new measurements from packaging the script. Throughput is total generated tokens divided by total elapsed time. Per-trial timings, exact random prompts, and hardware/thread settings were not retained, so this is an initial measurement rather than a fully reproducible performance claim. Uncached runs first in each pair; subsequent experiments should vary order and report variability. Longer-context scaling and memory measurements remain to be done.
 
+### CPU speedup versus input length
+
+A follow-up run used exact prefixes of the tokenized text `"The cat sat on the mat. " * 2000`, generating **100 new tokens** with greedy decoding at each input length. These are **one timed run per mode per length**, not five-trial averages. Uncached ran first in each pair, with an untimed five-token warm-up for both modes at the 16-token length. Loading and output printing were outside the timer.
+
+| Input tokens | Uncached | KV cache | Speedup |
+| ---: | ---: | ---: | ---: |
+| 16 | 17.54 s | 5.52 s | **3.18×** |
+| 64 | 26.00 s | 5.67 s | **4.58×** |
+| 256 | 62.39 s | 6.56 s | **9.51×** |
+| 512 | 132.43 s | 7.67 s | **17.27×** |
+
+[Recorded timing values](gpt2/results/2026-10-20-cpu-lengths.csv) are transcribed from the user's October 20 CPU console output. The original script finished these four pairs, then hit an out-of-range index while attempting a fifth length; the completed timings above remain available. The published length runner fixes that loop and can repeat each length with `--trials 5`. It has been smoke-tested separately; the table is not a rerun of the packaged script.
+
+The increasing speedup is consistent with avoiding repeated processing of the growing context. Repeated text, fixed execution order, unrecorded hardware/thread settings, and single trials limit generalization. These numbers measure full generation time, not isolated decode latency or time to first token.
+
+```bash
+python3 gpt2/benchmark_lengths.py
+# Optional repeated measurements:
+python3 gpt2/benchmark_lengths.py --trials 5
+```
+
 ### Run GPT-2
 
 From the repository root, in your Python environment:
@@ -49,7 +70,7 @@ python3 gpt2/compare_reference.py
 
 The checkpoint is downloaded at a pinned revision into ignored `gpt2/model/`. To reuse an existing download, set `GPT2_MODEL_DIR` to that directory. No pretrained weights are committed. Loading the custom model happens when `gpt2.py` is imported; the optional reference comparison also loads a reference model and therefore needs memory for both.
 
-This is a learning implementation with separate Python attention-head calls and growing tensor caches, not an optimized serving engine. **The initial CPU speed benchmark is above; memory and longer-context benchmarks are pending.** GPT-2 is a base completion model, not an instruction-tuned assistant; its text can be repetitive, inaccurate, or offensive. Matching the reference verifies computation, not factual quality.
+This is a learning implementation with separate Python attention-head calls and growing tensor caches, not an optimized serving engine. **CPU timing across input lengths is above; memory measurements and repeated length trials are pending.** GPT-2 is a base completion model, not an instruction-tuned assistant; its text can be repetitive, inaccurate, or offensive. Matching the reference verifies computation, not factual quality.
 
 ## The addition experiment
 
@@ -145,6 +166,8 @@ more.txt                Generated Shakespeare-like text
 gpt2/
   gpt2.py               Custom GPT-2 forward pass, weight loading, KV caching
   prompt.py             Cached versus uncached generation benchmark
+  benchmark_lengths.py  Timing at exact input-token lengths
+  results/              Recorded benchmark values
   compare_reference.py  Interactive comparison against Hugging Face GPT-2
   download_model.py     Download pinned pretrained weights and tokenizer
   requirements.txt      Inference dependencies
@@ -164,4 +187,4 @@ Relevant arithmetic reading: [Teaching Arithmetic to Small Transformers](https:/
 
 ## Next
 
-Extend the initial cache benchmark across 16-, 64-, 256-, and 512-token prompts; measure time to first token, tokens per second, and memory usage. Then batch attention heads into larger tensor operations and measure the effect. Longer-term: LoRA/QLoRA and inference profiling. For addition, controlled answer-order experiments and the zero-answer termination failure remain open.
+Repeat the prompt-length measurements with varied execution order and record hardware, thread settings, variability, time to first token, and memory usage. Then batch attention heads into larger tensor operations and measure the effect. Longer-term: LoRA/QLoRA and inference profiling. For addition, controlled answer-order experiments and the zero-answer termination failure remain open.

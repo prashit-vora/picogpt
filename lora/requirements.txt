@@ -1,0 +1,6 @@
+torch
+tokenizers
+safetensors
+huggingface_hub
+datasets
+numpy>=2

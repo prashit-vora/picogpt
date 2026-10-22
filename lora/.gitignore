@@ -1,0 +1,13 @@
+__pycache__/
+model.safetensors
+tokenizer.json
+config.json
+generation_config.json
+tokenizer_config.json
+vocab.json
+merges.txt
+validation_stories.json
+kaggle-job/
+kaggle-results/
+lora_adapters.pt
+!results/**/lora_adapters.pt

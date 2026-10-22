@@ -1,0 +1,6 @@
+{
+  "training_completed": true,
+  "elapsed_seconds_including_data_and_evaluation": 17615.851058574997,
+  "peak_cuda_allocated_bytes": 8578104320,
+  "peak_cuda_reserved_bytes": 8701083648
+}

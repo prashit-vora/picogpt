@@ -1,0 +1,70 @@
+GPT-2 weights loaded successfully (all learned parameters).
+----
+
+Total parameters: 125,545,728
+Trainable parameters: 1,105,920
+---
+
+step 0: train loss 2.3722, val loss 2.2782
+step 500: train loss 2.0810, val loss 1.9663
+step 1000: train loss 1.9914, val loss 1.8745
+step 1500: train loss 1.9583, val loss 1.8480
+step 2000: train loss 1.9404, val loss 1.8356
+step 2500: train loss 1.9287, val loss 1.8112
+step 3000: train loss 1.9047, val loss 1.8042
+step 3500: train loss 1.8905, val loss 1.8013
+step 4000: train loss 1.8748, val loss 1.7861
+step 4500: train loss 1.8712, val loss 1.7818
+step 5000: train loss 1.8617, val loss 1.7818
+step 5500: train loss 1.8461, val loss 1.7785
+step 6000: train loss 1.8514, val loss 1.7662
+step 6500: train loss 1.8361, val loss 1.7602
+step 7000: train loss 1.8230, val loss 1.7602
+step 7500: train loss 1.8201, val loss 1.7490
+step 8000: train loss 1.8144, val loss 1.7435
+step 8500: train loss 1.8004, val loss 1.7399
+step 9000: train loss 1.8014, val loss 1.7410
+step 9500: train loss 1.7945, val loss 1.7379
+step 10000: train loss 1.7833, val loss 1.7372
+Saved /kaggle/working/lora_adapters.pt
+
+ORIGINAL GPT-2:
+Once upon a time, a little rabbit was born.
+
+The rabbit was a young girl, and she was a little bit of a rabbit.
+
+She was a little bit of a rabbit.
+
+She was a little bit of a rabbit.
+
+She was a little bit of a rabbit.
+
+She was a little bit of a rabbit.
+
+She was a little bit of a rabbit.
+
+She
+
+GPT-2 + LoRA:
+Once upon a time, a little rabbit named Timmy was playing in the park. He saw a big, shiny ball and wanted to play with it. But he was too young to play with it.
+
+Timmy's mom came to the park and told him that the ball was too big for him to play with. Timmy was sad and didn't want to play with it. But his mom said that it was okay to
+
+ORIGINAL GPT-2:
+One day, Lily found a new friend.
+
+"I'm so glad you're here," she said. "I'm so glad you're here."
+
+"I'm so glad you're here," Lily said. "I'm so glad you're here."
+
+"I'm so glad you're here," Lily said. "I'm so glad you're here."
+
+"I'm so glad you
+
+GPT-2 + LoRA:
+One day, Lily found a box in her room. Inside the box was a book. It was a book that said, "I am a boy." Lily was very excited. She wanted to read the book.
+
+But then, Lily saw a big box. It was big and shiny. It had a picture of a boy. Lily was very sad. She wanted to play with the book.
+
+But then,
+{'training_completed': True, 'elapsed_seconds_including_data_and_evaluation': 17615.851058574997, 'peak_cuda_allocated_bytes': 8578104320, 'peak_cuda_reserved_bytes': 8701083648}

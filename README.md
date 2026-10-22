@@ -1,12 +1,22 @@
 # picogpt
 
-**From training a character-level Transformer to running pretrained GPT-2 with a custom forward pass and KV caching.**
+**From a character-level Transformer to GPT-2 inference, KV caching, and LoRA fine-tuning.**
 
 I wrote the model implementation by hand to understand attention, residual connections, normalization, and training. Then I turned it into an experiment: can next-token prediction learn addition rather than just memorize equations?
 
 The latest recorded addition run answered **9,999 of 10,000 held-out equations correctly (99.99%)**, including **8,332/8,332 examples requiring a carry**. The remaining failure was `0+0`: the model generated `00000` instead of the expected `0`.
 
 [Addition implementation](addition/main.py) · [Latest training log](addition/runs/20261017-174421-reversed-10k/training.log) · [Exact submitted code](addition/runs/20261017-174421-reversed-10k/submitted_main.py) · [Shakespeare sample](more.txt)
+
+## LoRA: adapting GPT-2 to TinyStories
+
+Added QKV-only rank-8 LoRA adapters to the custom GPT-2 implementation, training **1.1M parameters** while freezing the pretrained model. A 10,000-step run on one T4 took about **4 hours 54 minutes** using 5,000 training stories and batch size 4.
+
+On **20 identical held-out windows (20,480 target tokens)**, cross-entropy fell from **2.2679 to 1.7184**, and perplexity from **9.66 to 5.58** with adapters enabled. Both versions were evaluated on the same inputs and targets. Perplexity is not accuracy or a direct measure of story coherence.
+
+Generated samples better matched the children's-story style, but repetition, contradictions and character confusion remain. The experiment demonstrates domain adaptation, not consistently coherent storytelling.
+
+[Code, adapters and instructions](lora/README.md) · [Training log and greedy samples](lora/results/2026-10-22/training.log) · [Fixed validation results](lora/results/2026-10-22/validation_comparison.json)
 
 ## GPT-2 inference: from weights to cached decoding
 

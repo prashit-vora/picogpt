@@ -1,0 +1,42 @@
+{
+  "dataset": "roneneldan/TinyStories",
+  "split": "validation",
+  "stories": 500,
+  "seed": 42,
+  "window_length": 1024,
+  "window_starts": [
+    48235,
+    88213,
+    6285,
+    90341,
+    60766,
+    59525,
+    93921,
+    21912,
+    57595,
+    59222,
+    53954,
+    85438,
+    39434,
+    20876,
+    66894,
+    57170,
+    51930,
+    31955,
+    48375,
+    74912
+  ],
+  "tokens_per_model": 20480,
+  "token_data_sha256": "6e6bcd2941f54254ca7ab073983423d5d503a4dc12ebd2681920d92c2ceecdc5",
+  "checkpoint": "lora/results/2026-10-22/lora_adapters.pt",
+  "results": {
+    "pretrained": {
+      "loss": 2.2679203748703003,
+      "perplexity": 9.6592922053307
+    },
+    "lora": {
+      "loss": 1.7183763206005096,
+      "perplexity": 5.575468337813549
+    }
+  }
+}

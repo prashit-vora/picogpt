@@ -1,0 +1,12 @@
+{
+  "block_size": 1024,
+  "batch_size": 4,
+  "learning_rate": 0.0001,
+  "eval_intervals": 500,
+  "max_iters": 10000,
+  "eval_iters": 200,
+  "base_model": "openai-community/gpt2",
+  "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+  "rank": 8,
+  "alpha": 8
+}
